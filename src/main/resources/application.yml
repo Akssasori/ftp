@@ -1,0 +1,9 @@
+server:
+  port: 2023
+
+ftp:
+  host: ${FTP_HOST}
+  port: ${FTP_PORT}
+  username: ${FTP_USER}
+  password: ${FTP_PASSWORD}
+  path: ${FTP_PATH}
