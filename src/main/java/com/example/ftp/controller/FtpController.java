@@ -19,7 +19,7 @@ public class FtpController {
 
     @PostMapping
     public ResponseEntity sendUserFtp (@RequestBody UserDto userDto) throws Exception {
-        boolean fileToFtp = ftpService.sendFileToFtp(userDto);
+        var fileToFtp = ftpService.sendFileToFtp(userDto);
         return ResponseEntity.ok().body(fileToFtp);
     }
 

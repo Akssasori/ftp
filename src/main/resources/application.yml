@@ -7,3 +7,8 @@ ftp:
   username: ${FTP_USER}
   password: ${FTP_PASSWORD}
   path: ${FTP_PATH}
+
+spring:
+  output:
+    ansi:
+      enabled: Always
