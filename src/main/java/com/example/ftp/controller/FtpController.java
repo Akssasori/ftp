@@ -8,8 +8,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
-
 @RestController
 @RequestMapping("ftp")
 public class FtpController {
@@ -21,14 +19,8 @@ public class FtpController {
 
     @PostMapping
     public ResponseEntity sendUserFtp (@RequestBody UserDto userDto) throws Exception {
-//        createArray(userDto);
-        ftpService.sendFileToFtp(userDto);
-        return ResponseEntity.ok().body("Success");
+        boolean fileToFtp = ftpService.sendFileToFtp(userDto);
+        return ResponseEntity.ok().body(fileToFtp);
     }
 
-//    private static void createArray(UserDto userDto) throws IOException {
-//        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-//        ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
-//        objectOutputStream.writeObject(userDto);
-//    }
 }

@@ -37,25 +37,17 @@ public class FtpServiceImpl implements FtpService {
     private String path;
 
     @Override
-    public void sendFileToFtp(UserDto userDto) throws Exception {
+    public boolean sendFileToFtp(UserDto userDto) throws Exception {
 
         SendFileFtpDto build = SendFileFtpDto.builder().fileName(buildNameFile(userDto)).bytes(createFile(userDto)).build();
-        System.out.println(build);
 
         FTPConfiguration config = getFtpConfiguration();
         FTPClient ftpClientLogin = loginFtp(config);
         System.out.println(ftpClientLogin.getReplyString());
         InputStream inputStream = new ByteArrayInputStream(build.getBytes());
-        var success = uploadFile(inputStream, config, ftpClientLogin, build);
-
-//        deleteIfExists(build.getFileName(), config);
-
+        return uploadFile(inputStream, config, ftpClientLogin, build);
 
     }
-
-//    private boolean deleteIfExists(String filename, FTPConfiguration config) {
-//        return true;
-//    }
 
     private FTPConfiguration getFtpConfiguration() {
 
@@ -82,20 +74,19 @@ public class FtpServiceImpl implements FtpService {
 
     public FTPClient loginFtp(FTPConfiguration config) throws Exception {
         FTPClient ftpClient = new FTPClient();
-//        ftpClient.addProtocolCommandListener(new ProtocolCommandListener() {
-//            @Override
-//            public void protocolCommandSent(ProtocolCommandEvent protocolCommandEvent) {
-//                System.out.printf("[%s][%d] Command sent : [%s]-%s", Thread.currentThread().getName(), System.currentTimeMillis(), protocolCommandEvent.getCommand(), protocolCommandEvent.getMessage());
-//            }
-//
-//            @Override
-//            public void protocolReplyReceived(ProtocolCommandEvent protocolCommandEvent) {
-//                System.out.printf("[%s][%d] Reply received : %s", Thread.currentThread().getName(), System.currentTimeMillis(), protocolCommandEvent.getMessage());
-//            }
-//        });
+        ftpClient.addProtocolCommandListener(new ProtocolCommandListener() {
+            @Override
+            public void protocolCommandSent(ProtocolCommandEvent protocolCommandEvent) {
+                System.out.printf("[%s][%d] Command sent : [%s]-%s", Thread.currentThread().getName(), System.currentTimeMillis(), protocolCommandEvent.getCommand(), protocolCommandEvent.getMessage());
+            }
+
+            @Override
+            public void protocolReplyReceived(ProtocolCommandEvent protocolCommandEvent) {
+                System.out.printf("[%s][%d] Reply received : %s", Thread.currentThread().getName(), System.currentTimeMillis(), protocolCommandEvent.getMessage());
+            }
+        });
         ftpClient.connect(config.getHost(), Integer.parseInt(config.getPort()));
         ftpClient.login(config.getUsername(), config.getPassword());
-//        ftpClient.enterLocalPassiveMode();
         return ftpClient;
     }
 
