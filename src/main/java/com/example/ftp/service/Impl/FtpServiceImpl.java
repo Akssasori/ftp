@@ -1,7 +1,7 @@
 package com.example.ftp.service.Impl;
 
-
 import com.example.ftp.config.FTPConfiguration;
+import com.example.ftp.dto.CreateDirectoryFtpDto;
 import com.example.ftp.dto.SendFileFtpDto;
 import com.example.ftp.dto.UserDto;
 import com.example.ftp.service.FtpService;
@@ -9,6 +9,7 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.net.ProtocolCommandEvent;
 import org.apache.commons.net.ProtocolCommandListener;
 import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.net.ftp.FTPFile;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -54,6 +55,45 @@ public class FtpServiceImpl implements FtpService {
 
     }
 
+    @Override
+    public void createDirectory(CreateDirectoryFtpDto directoryFtpDto) throws Exception {
+        FTPConfiguration config = getFtpConfiguration();
+        FTPClient ftpClient = loginFtp(config);
+        log.info("[createDirectory]{} Is success to create directory : {} -> {}",
+                System.currentTimeMillis(), path, ftpClient.makeDirectory(directoryFtpDto.getPath()));
+        logoutFtp(ftpClient);
+
+
+    }
+
+    @Override
+    public void listFiles() throws Exception {
+
+        FTPConfiguration config = getFtpConfiguration();
+        FTPClient ftpClient = loginFtp(config);
+        ftpClient.enterLocalPassiveMode();
+
+        FTPFile[] list = ftpClient.listFiles(config.getPath());
+        for (FTPFile f : list) {
+            System.out.println(f.getName());
+        }
+        logoutFtp(ftpClient);
+
+    }
+
+//    @Override
+//    public byte[] download() throws Exception {
+//
+//        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+//        FTPConfiguration config = getFtpConfiguration();
+//        FTPClient ftpClient = loginFtp(config);
+//        ftpClient.enterLocalPassiveMode();
+//
+//        boolean b = ftpClient.retrieveFile(config.getPath(), byteArrayOutputStream);
+//        logoutFtp(ftpClient);
+//        return byteArrayOutputStream.toByteArray();
+//    }
+
     public FTPClient loginFtp(FTPConfiguration config) throws Exception {
         FTPClient ftpClient = new FTPClient();
         ftpClient.addProtocolCommandListener(new ProtocolCommandListener() {
@@ -67,9 +107,14 @@ public class FtpServiceImpl implements FtpService {
                 log.info("{}{} Reply received : {}", Thread.currentThread().getName(), System.currentTimeMillis(), protocolCommandEvent.getMessage());
             }
         });
-        ftpClient.connect(config.getHost(), Integer.parseInt(config.getPort()));
-        ftpClient.login(config.getUsername(), config.getPassword());
-        log.info(ftpClient.getReplyString());
+
+        if (Boolean.FALSE.equals(ftpClient.isConnected())) {
+
+            ftpClient.connect(config.getHost(), Integer.parseInt(config.getPort()));
+            ftpClient.login(config.getUsername(), config.getPassword());
+            log.info(ftpClient.getReplyString());
+        }
+
         return ftpClient;
     }
 
@@ -113,14 +158,6 @@ public class FtpServiceImpl implements FtpService {
         stringJoiner.add(userDto.getPassword());
         return stringJoiner.toString().getBytes();
     }
-
-//    public void createDirectory(String path, FTPClient ftpClient) throws Exception {
-//        System.out.println();
-//        System.out.printf("[createDirectory][%d] Is success to create directory : %s -> %b",
-//                System.currentTimeMillis(), path, ftpClient.makeDirectory(path));
-//        System.out.println();
-//        ftpClient.makeDirectory(path);
-//    }
 
     private FTPConfiguration getFtpConfiguration() {
         return FTPConfiguration.builder()
