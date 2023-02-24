@@ -32,9 +32,9 @@ public class FtpController {
         ftpService.listFiles();
     }
 
-//    @GetMapping("download")
-//    public void download() throws Exception {
-//        ftpService.download();
-//    }
+    @GetMapping("download")
+    public void download() throws Exception {
+        ftpService.download();
+    }
 
 }

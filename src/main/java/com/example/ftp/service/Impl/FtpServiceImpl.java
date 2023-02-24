@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
@@ -23,6 +24,8 @@ import java.util.StringJoiner;
 @Service
 @Log4j2
 public class FtpServiceImpl implements FtpService {
+
+    public static final String DIRECTORY = "d:/";
 
     @Value("${ftp.host}")
     private String host;
@@ -81,18 +84,24 @@ public class FtpServiceImpl implements FtpService {
 
     }
 
-//    @Override
-//    public byte[] download() throws Exception {
-//
-//        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-//        FTPConfiguration config = getFtpConfiguration();
-//        FTPClient ftpClient = loginFtp(config);
-//        ftpClient.enterLocalPassiveMode();
-//
-//        boolean b = ftpClient.retrieveFile(config.getPath(), byteArrayOutputStream);
-//        logoutFtp(ftpClient);
-//        return byteArrayOutputStream.toByteArray();
-//    }
+    @Override
+    public boolean download() throws Exception {
+
+        FTPConfiguration config = getFtpConfiguration();
+        FTPClient ftpClient = loginFtp(config);
+        ftpClient.enterLocalPassiveMode();
+
+        FTPFile[] list = ftpClient.listFiles(config.getPath());
+
+        var b = false;
+        for (FTPFile f : list) {
+            var fos = new FileOutputStream("d:/" + f.getName());
+            b = ftpClient.retrieveFile(f.getName(), fos);
+        }
+        
+        logoutFtp(ftpClient);
+        return b;
+    }
 
     public FTPClient loginFtp(FTPConfiguration config) throws Exception {
         FTPClient ftpClient = new FTPClient();

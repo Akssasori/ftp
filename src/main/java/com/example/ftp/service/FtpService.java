@@ -10,5 +10,5 @@ public interface FtpService {
 
     void listFiles() throws Exception;
 
-//    byte[] download() throws Exception;
+    boolean download() throws Exception;
 }
